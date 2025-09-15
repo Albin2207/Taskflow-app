@@ -94,5 +94,10 @@
   "language_changed": "भाषा सफलतापूर्वक बदली गई",
 
   "coming_soon": "{feature} जल्द आ रहा है!",
-  "test_notification": "टेस्ट सूचना"
+  "test_notification": "टेस्ट सूचना",
+
+  "task_flow": "टास्कफ़्लो",
+  "user": "उपयोगकर्ता",
+  "test_notification_tooltip": "टेस्ट सूचना",
+  "id": "आईडी"
 }

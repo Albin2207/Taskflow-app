@@ -31,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
@@ -46,10 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.logout,
-              color: Colors.red,
-            ),
+            icon: const Icon(Icons.logout, color: Colors.red),
             onPressed: () => _showSignOutDialog(context),
           ),
         ],
@@ -95,6 +92,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
+                        // ignore: deprecated_member_use
                         color: Colors.grey.withOpacity(0.1),
                         spreadRadius: 1,
                         blurRadius: 10,
@@ -143,6 +141,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                   boxShadow: [
                                     BoxShadow(
+                                      // ignore: deprecated_member_use
                                       color: Colors.grey.withOpacity(0.2),
                                       spreadRadius: 2,
                                       blurRadius: 10,
@@ -153,24 +152,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: CircleAvatar(
                                   radius: 47,
                                   backgroundColor: const Color(0xFF1E88E5),
-                                  backgroundImage: photoUrl != null && photoUrl.isNotEmpty
-                                      ? NetworkImage(photoUrl)
-                                      : null,
-                                  child: photoUrl == null || photoUrl.isEmpty
-                                      ? Text(
-                                          name.isNotEmpty ? name[0].toUpperCase() : 'U',
-                                          style: const TextStyle(
-                                            fontSize: 32,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : null,
+                                  backgroundImage:
+                                      photoUrl != null && photoUrl.isNotEmpty
+                                          ? NetworkImage(photoUrl)
+                                          : null,
+                                  child:
+                                      photoUrl == null || photoUrl.isEmpty
+                                          ? Text(
+                                            name.isNotEmpty
+                                                ? name[0].toUpperCase()
+                                                : 'U',
+                                            style: const TextStyle(
+                                              fontSize: 32,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                          : null,
                                 ),
                               ),
-                              
+
                               const SizedBox(height: 16),
-                              
+
                               // Name
                               Text(
                                 name.isEmpty ? 'Unknown User' : name,
@@ -181,9 +184,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 textAlign: TextAlign.center,
                               ),
-                              
+
                               const SizedBox(height: 8),
-                              
+
                               // Email
                               Text(
                                 email.isEmpty ? 'No email' : email,
@@ -200,43 +203,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Profile Options
-                _buildProfileOption(
-                  context: context,
-                  icon: Icons.person_outline,
-                  title: localizations.editProfile,
-                  subtitle: localizations.updatePersonalInfo,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(localizations.comingSoon(localizations.editProfile))),
-                    );
-                  },
-                ),
-                
-                const SizedBox(height: 12),
-                
-                _buildProfileOption(
-                  context: context,
-                  icon: Icons.notifications_outlined,
-                  title: localizations.notifications,
-                  subtitle: localizations.manageNotificationPreferences,
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(localizations.comingSoon(localizations.notifications))),
-                    );
-                  },
-                ),
-                
-                const SizedBox(height: 12),
-                
+
                 // Language Setting with actual functionality
                 _buildLanguageOption(context),
-                
+
                 const SizedBox(height: 12),
-                
+
                 _buildProfileOption(
                   context: context,
                   icon: Icons.help_outline,
@@ -244,13 +220,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   subtitle: localizations.getHelpSupport,
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(localizations.comingSoon(localizations.helpSupport))),
+                      SnackBar(
+                        content: Text(
+                          localizations.comingSoon(localizations.helpSupport),
+                        ),
+                      ),
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 _buildProfileOption(
                   context: context,
                   icon: Icons.info_outline,
@@ -258,13 +238,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   subtitle: localizations.learnMoreAboutApp,
                   onTap: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(localizations.comingSoon(localizations.about))),
+                      SnackBar(
+                        content: Text(
+                          localizations.comingSoon(localizations.about),
+                        ),
+                      ),
                     );
                   },
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Sign Out Button
                 SizedBox(
                   width: double.infinity,
@@ -272,9 +256,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return ElevatedButton(
-                        onPressed: state is AuthLoading 
-                            ? null 
-                            : () => _showSignOutDialog(context),
+                        onPressed:
+                            state is AuthLoading
+                                ? null
+                                : () => _showSignOutDialog(context),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           foregroundColor: Colors.white,
@@ -283,34 +268,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           elevation: 2,
                         ),
-                        child: state is AuthLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                                ),
-                              )
-                            : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.logout),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    localizations.signOut,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                        child:
+                            state is AuthLoading
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
                                     ),
                                   ),
-                                ],
-                              ),
+                                )
+                                : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.logout),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      localizations.signOut,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                       );
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
               ],
             ),
@@ -333,6 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
+            // ignore: deprecated_member_use
             color: Colors.grey.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 5,
@@ -344,14 +333,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
+            // ignore: deprecated_member_use
             color: const Color(0xFF1E88E5).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF1E88E5),
-            size: 20,
-          ),
+          child: Icon(icon, color: const Color(0xFF1E88E5), size: 20),
         ),
         title: Text(
           title,
@@ -362,10 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
         ),
         trailing: const Icon(
           Icons.arrow_forward_ios,
@@ -373,32 +356,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: Colors.grey,
         ),
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
     );
   }
 
   Widget _buildLanguageOption(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     return BlocBuilder<LocaleBloc, LocaleState>(
       builder: (context, localeState) {
         String currentLanguage = localizations.english;
         if (localeState is LocaleLoaded) {
-          currentLanguage = localeState.locale.languageCode == AppConstants.hindiCode 
-              ? localizations.hindi 
-              : localizations.english;
+          currentLanguage =
+              localeState.locale.languageCode == AppConstants.hindiCode
+                  ? localizations.hindi
+                  : localizations.english;
         }
-        
+
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
+                // ignore: deprecated_member_use
                 color: Colors.grey.withOpacity(0.1),
                 spreadRadius: 1,
                 blurRadius: 5,
@@ -410,6 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: const Color(0xFF1E88E5).withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -428,10 +411,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             subtitle: Text(
               currentLanguage,
-              style: const TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-              ),
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
             trailing: const Icon(
               Icons.arrow_forward_ios,
@@ -451,7 +431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showLanguageDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {
@@ -461,7 +441,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (localeState is LocaleLoaded) {
               currentLanguageCode = localeState.locale.languageCode;
             }
-            
+
             return AlertDialog(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -531,7 +511,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   void _showSignOutDialog(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {

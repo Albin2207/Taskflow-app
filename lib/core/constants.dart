@@ -147,4 +147,10 @@ class LocalizationKeys {
   // Common
   static const String comingSoon = 'coming_soon';
   static const String testNotification = 'test_notification';
+
+  // HomeScreen specific keys
+  static const String taskFlow = 'task_flow';
+  static const String user = 'user';
+  static const String testNotificationTooltip = 'test_notification_tooltip';
+  static const String id = 'id';
 }

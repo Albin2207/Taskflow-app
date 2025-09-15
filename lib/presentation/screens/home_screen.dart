@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/app_localization.dart';
+import '../../core/constants.dart';
 import '../../domain/entities/api_user_entity.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth/auth_state.dart';
@@ -8,7 +10,6 @@ import '../bloc/notification/notification_bloc.dart';
 import '../bloc/userlist/userlist_bloc.dart';
 import '../bloc/userlist/userlist_event.dart';
 import '../bloc/userlist/userlist_state.dart';
-import 'apidebug_screen.dart';
 import 'profile_screen.dart';
 import 'no_network_screen.dart';
 import 'user_details_screen.dart';
@@ -26,9 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.getSafeLocalizations(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+    final isDesktop = screenWidth >= 1024;
+
     return MultiBlocListener(
       listeners: [
-        // Listen to notification navigation
         BlocListener<NotificationBloc, NotificationState>(
           listener: (context, state) {
             if (state is NotificationTapped) {
@@ -36,11 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
             }
           },
         ),
-        // Listen to connectivity changes
         BlocListener<ConnectivityBloc, ConnectivityState>(
           listener: (context, connectivityState) {
             if (connectivityState is ConnectivityConnected) {
-              // Show network restored notification
               context.read<NotificationBloc>().add(
                 NotificationSendNetworkRestored(),
               );
@@ -50,63 +53,107 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       child: Scaffold(
         body:
-            _selectedIndex == 0
+            isDesktop
+                ? _buildDesktopLayout(localizations)
+                : _selectedIndex == 0
                 ? const DashboardScreen()
                 : const ProfileScreen(),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-            currentIndex: _selectedIndex,
-            onTap: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            selectedItemColor: const Color(0xFF1E88E5),
-            unselectedItemColor: Colors.grey,
-            selectedFontSize: 12,
-            unselectedFontSize: 12,
-            items: const [
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
-              ),
-            ],
-          ),
+        bottomNavigationBar:
+            !isDesktop ? _buildBottomNavigation(localizations, isTablet) : null,
+      ),
+    );
+  }
+
+  Widget _buildDesktopLayout(AppLocalizations localizations) {
+    return Row(
+      children: [
+        // Navigation Rail for desktop
+        NavigationRail(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+          labelType: NavigationRailLabelType.all,
+          destinations: [
+            NavigationRailDestination(
+              icon: const Icon(Icons.home),
+              label: Text(localizations.home),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(Icons.person),
+              label: Text(localizations.profile),
+            ),
+          ],
         ),
+        const VerticalDivider(thickness: 1, width: 1),
+        // Main content
+        Expanded(
+          child:
+              _selectedIndex == 0
+                  ? const DashboardScreen()
+                  : const ProfileScreen(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBottomNavigation(AppLocalizations localizations, bool isTablet) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        selectedItemColor: const Color(0xFF1E88E5),
+        unselectedItemColor: Colors.grey,
+        selectedFontSize: isTablet ? 14 : 12,
+        unselectedFontSize: isTablet ? 12 : 12,
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, size: isTablet ? 28 : 24),
+            label: localizations.home,
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person, size: isTablet ? 28 : 24),
+            label: localizations.profile,
+          ),
+        ],
       ),
     );
   }
 
   void _handleNotificationNavigation(String route, Map<String, dynamic> data) {
     switch (route) {
-      case '/users':
-        // Navigate to users tab and refresh data
+      case AppConstants.usersRoute:
         setState(() {
           _selectedIndex = 0;
         });
         context.read<UsersBloc>().add(const LoadUsersEvent(isRefresh: true));
         break;
-      case '/profile':
+      case AppConstants.profileRoute:
         setState(() {
           _selectedIndex = 1;
         });
         break;
-      case '/home':
+      case AppConstants.homeRoute:
       default:
         setState(() {
           _selectedIndex = 0;
@@ -130,10 +177,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    // Load users when screen initializes
     context.read<UsersBloc>().add(const LoadUsersEvent());
 
-    // Show welcome notification on first load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _showWelcomeNotificationOnFirstLoad();
     });
@@ -146,7 +191,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showWelcomeNotificationOnFirstLoad() {
-    // Only show welcome notification if this is the first time loading
     final currentState = context.read<UsersBloc>().state;
     if (currentState is UsersInitial) {
       Future.delayed(const Duration(seconds: 2), () {
@@ -172,95 +216,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.getSafeLocalizations(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600;
+    final isDesktop = screenWidth >= 1024;
+
+    // Responsive padding
+    final horizontalPadding =
+        isDesktop
+            ? 32.0
+            : isTablet
+            ? 24.0
+            : 16.0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: BlocBuilder<AuthBloc, AuthState>(
-          builder: (context, state) {
-            if (state is AuthAuthenticated) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Welcome Back',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                  Text(
-                    state.user.name.isEmpty
-                        ? 'User'
-                        : state.user.name.split(' ').first,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              );
-            }
-            return const Text('TaskFlow');
-          },
-        ),
-        actions: [
-          BlocBuilder<ConnectivityBloc, ConnectivityState>(
-            builder: (context, connectivityState) {
-              return IconButton(
-                icon: const Icon(Icons.add_circle_outline),
-                color:
-                    connectivityState is ConnectivityConnected
-                        ? const Color(0xFF1E88E5)
-                        : Colors.grey,
-                onPressed:
-                    connectivityState is ConnectivityConnected
-                        ? () => _navigateToUserForm(context)
-                        : () => _showOfflineMessage(context),
-              );
-            },
-          ),
-          // Test notification button
-          IconButton(
-            icon: const Icon(Icons.notifications_active),
-            color: const Color(0xFF1E88E5),
-            onPressed: () {
-              context.read<NotificationBloc>().add(NotificationSendTest());
-            },
-            tooltip: 'Test Notification',
-          ),
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            child: BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                if (state is AuthAuthenticated && state.user.photoUrl != null) {
-                  return CircleAvatar(
-                    radius: 18,
-                    backgroundImage: NetworkImage(state.user.photoUrl!),
-                  );
-                }
-                return const CircleAvatar(
-                  radius: 18,
-                  backgroundColor: Color(0xFF1E88E5),
-                  child: Icon(Icons.person, color: Colors.white, size: 18),
-                );
-              },
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.bug_report, color: Colors.red),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ApiDebugScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: _buildResponsiveAppBar(localizations, isTablet, isDesktop),
       body: BlocListener<ConnectivityBloc, ConnectivityState>(
         listener: (context, connectivityState) {
           if (connectivityState is ConnectivityDisconnected) {
@@ -300,42 +271,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // Stats Section
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: _buildStatsSection(state),
+                      padding: EdgeInsets.all(horizontalPadding),
+                      child: _buildResponsiveStatsSection(
+                        state,
+                        localizations,
+                        isTablet,
+                        isDesktop,
+                      ),
                     ),
                   ),
 
-                  // Users List Section
+                  // Users List Header
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Users',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          BlocBuilder<ConnectivityBloc, ConnectivityState>(
-                            builder: (context, connectivityState) {
-                              return TextButton.icon(
-                                onPressed:
-                                    connectivityState is ConnectivityConnected
-                                        ? () => context.read<UsersBloc>().add(
-                                          const LoadUsersEvent(isRefresh: true),
-                                        )
-                                        : null,
-                                icon: const Icon(Icons.refresh, size: 18),
-                                label: const Text('Refresh'),
-                              );
-                            },
-                          ),
-                        ],
+                      padding: EdgeInsets.symmetric(
+                        horizontal: horizontalPadding,
                       ),
+                      child: _buildUsersListHeader(localizations, isTablet),
                     ),
                   ),
 
@@ -350,37 +302,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     )
                   else if (state is UsersLoaded)
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          if (index >= state.users.length) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
-
-                          final user = state.users[index];
-                          return Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              16,
-                              index == 0 ? 8 : 4,
-                              16,
-                              index == state.users.length - 1 ? 16 : 4,
-                            ),
-                            child: _buildUserCard(user),
-                          );
-                        },
-                        childCount:
-                            state.users.length + (state.isLoadingMore ? 1 : 0),
-                      ),
+                    _buildResponsiveUsersList(
+                      state,
+                      localizations,
+                      isTablet,
+                      isDesktop,
+                      horizontalPadding,
                     )
                   else if (state is UsersError)
-                    SliverToBoxAdapter(child: _buildErrorState(state.message))
+                    SliverToBoxAdapter(
+                      child: _buildErrorState(state.message, localizations),
+                    )
                   else
-                    SliverToBoxAdapter(child: _buildEmptyState()),
+                    SliverToBoxAdapter(child: _buildEmptyState(localizations)),
                 ],
               ),
             );
@@ -390,7 +324,96 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildStatsSection(UsersState state) {
+  PreferredSizeWidget _buildResponsiveAppBar(
+    AppLocalizations localizations,
+    bool isTablet,
+    bool isDesktop,
+  ) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      elevation: 0,
+      toolbarHeight: isTablet ? 72 : 56,
+      title: BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+          if (state is AuthAuthenticated) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  localizations.welcomeBack,
+                  style: TextStyle(
+                    fontSize: isTablet ? 16 : 14,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                Text(
+                  state.user.name.isEmpty
+                      ? localizations.user
+                      : state.user.name.split(' ').first,
+                  style: TextStyle(
+                    fontSize: isTablet ? 24 : 20,
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            );
+          }
+          return Text(
+            localizations.taskFlow,
+            style: TextStyle(fontSize: isTablet ? 22 : 18),
+          );
+        },
+      ),
+      actions: [
+        BlocBuilder<ConnectivityBloc, ConnectivityState>(
+          builder: (context, connectivityState) {
+            return IconButton(
+              icon: const Icon(Icons.add_circle_outline),
+              iconSize: isTablet ? 48 : 40,
+              color:
+                  connectivityState is ConnectivityConnected
+                      ? const Color(0xFF1E88E5)
+                      : Colors.grey,
+              onPressed:
+                  connectivityState is ConnectivityConnected
+                      ? () => _navigateToUserForm(context)
+                      : () => _showOfflineMessage(context),
+            );
+          },
+        ),
+        Container(
+          margin: EdgeInsets.only(right: isTablet ? 24 : 16),
+          child: BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              final radius = isTablet ? 24.0 : 18.0;
+              final iconSize = isTablet ? 24.0 : 18.0;
+
+              if (state is AuthAuthenticated && state.user.photoUrl != null) {
+                return CircleAvatar(
+                  radius: radius,
+                  backgroundImage: NetworkImage(state.user.photoUrl!),
+                );
+              }
+              return CircleAvatar(
+                radius: radius,
+                backgroundColor: const Color(0xFF1E88E5),
+                child: Icon(Icons.person, color: Colors.white, size: iconSize),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildResponsiveStatsSection(
+    UsersState state,
+    AppLocalizations localizations,
+    bool isTablet,
+    bool isDesktop,
+  ) {
     int totalUsers = 0;
     int currentPage = 1;
 
@@ -399,30 +422,222 @@ class _DashboardScreenState extends State<DashboardScreen> {
       currentPage = state.currentPage;
     }
 
+    if (isDesktop) {
+      // Desktop: 4 columns or more stats
+      return Row(
+        children: [
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: localizations.totalUsers,
+              count: totalUsers.toString(),
+              icon: Icons.people,
+              color: const Color(0xFF4CAF50),
+              isLarge: true,
+            ),
+          ),
+          const SizedBox(width: 24),
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: localizations.currentPage,
+              count: currentPage.toString(),
+              icon: Icons.pages,
+              color: const Color(0xFF2196F3),
+              isLarge: true,
+            ),
+          ),
+          const SizedBox(width: 24),
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: "Online",
+              count: "Yes",
+              icon: Icons.wifi,
+              color: const Color(0xFF4CAF50),
+              isLarge: true,
+            ),
+          ),
+        ],
+      );
+    } else if (isTablet) {
+      // Tablet: 2 columns with larger cards
+      return Row(
+        children: [
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: localizations.totalUsers,
+              count: totalUsers.toString(),
+              icon: Icons.people,
+              color: const Color(0xFF4CAF50),
+              isLarge: true,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: localizations.currentPage,
+              count: currentPage.toString(),
+              icon: Icons.pages,
+              color: const Color(0xFF2196F3),
+              isLarge: true,
+            ),
+          ),
+        ],
+      );
+    } else {
+      // Mobile: 2 columns with smaller cards
+      return Row(
+        children: [
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: localizations.totalUsers,
+              count: totalUsers.toString(),
+              icon: Icons.people,
+              color: const Color(0xFF4CAF50),
+              isLarge: false,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _ResponsiveStatsCard(
+              title: localizations.currentPage,
+              count: currentPage.toString(),
+              icon: Icons.pages,
+              color: const Color(0xFF2196F3),
+              isLarge: false,
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
+  Widget _buildUsersListHeader(AppLocalizations localizations, bool isTablet) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: _StatsCard(
-            title: 'Total Users',
-            count: totalUsers.toString(),
-            icon: Icons.people,
-            color: const Color(0xFF4CAF50),
+        Text(
+          localizations.users,
+          style: TextStyle(
+            fontSize: isTablet ? 24 : 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _StatsCard(
-            title: 'Current Page',
-            count: currentPage.toString(),
-            icon: Icons.pages,
-            color: const Color(0xFF2196F3),
-          ),
+        BlocBuilder<ConnectivityBloc, ConnectivityState>(
+          builder: (context, connectivityState) {
+            return TextButton.icon(
+              onPressed:
+                  connectivityState is ConnectivityConnected
+                      ? () => context.read<UsersBloc>().add(
+                        const LoadUsersEvent(isRefresh: true),
+                      )
+                      : null,
+              icon: Icon(Icons.refresh, size: isTablet ? 20 : 18),
+              label: Text(
+                localizations.refresh,
+                style: TextStyle(fontSize: isTablet ? 16 : 14),
+              ),
+            );
+          },
         ),
       ],
     );
   }
 
-  Widget _buildUserCard(ApiUserEntity user) {
+  Widget _buildResponsiveUsersList(
+    UsersLoaded state,
+    AppLocalizations localizations,
+    bool isTablet,
+    bool isDesktop,
+    double horizontalPadding,
+  ) {
+    if (isDesktop) {
+      // Desktop: Grid layout
+      return SliverPadding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        sliver: SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 3.5,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index >= state.users.length) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            return _buildResponsiveUserCard(
+              state.users[index],
+              localizations,
+              isTablet,
+              isDesktop,
+            );
+          }, childCount: state.users.length + (state.isLoadingMore ? 1 : 0)),
+        ),
+      );
+    } else {
+      // Mobile & Tablet: List layout
+      return SliverList(
+        delegate: SliverChildBuilderDelegate((context, index) {
+          if (index >= state.users.length) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          final user = state.users[index];
+          return Padding(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              index == 0 ? 8 : 4,
+              horizontalPadding,
+              index == state.users.length - 1 ? 16 : 4,
+            ),
+            child: _buildResponsiveUserCard(
+              user,
+              localizations,
+              isTablet,
+              isDesktop,
+            ),
+          );
+        }, childCount: state.users.length + (state.isLoadingMore ? 1 : 0)),
+      );
+    }
+  }
+
+  Widget _buildResponsiveUserCard(
+    ApiUserEntity user,
+    AppLocalizations localizations,
+    bool isTablet,
+    bool isDesktop,
+  ) {
+    final cardPadding =
+        isDesktop
+            ? 20.0
+            : isTablet
+            ? 18.0
+            : 16.0;
+    final avatarRadius =
+        isDesktop
+            ? 35.0
+            : isTablet
+            ? 32.0
+            : 30.0;
+    final titleFontSize =
+        isDesktop
+            ? 18.0
+            : isTablet
+            ? 17.0
+            : 16.0;
+    final subtitleFontSize =
+        isDesktop
+            ? 15.0
+            : isTablet
+            ? 14.0
+            : 14.0;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -437,25 +652,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: EdgeInsets.all(cardPadding),
         leading: CircleAvatar(
-          radius: 30,
+          radius: avatarRadius,
           backgroundImage: NetworkImage(user.avatar),
           backgroundColor: Colors.grey[300],
         ),
         title: Text(
           user.fullName,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: titleFontSize,
+          ),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
+            SizedBox(height: isTablet ? 6 : 4),
             Text(
               user.email,
-              style: const TextStyle(color: Colors.grey, fontSize: 14),
+              style: TextStyle(color: Colors.grey, fontSize: subtitleFontSize),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: isTablet ? 6 : 4),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
@@ -463,10 +681,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                'ID: ${user.id}',
-                style: const TextStyle(
-                  color: Color(0xFF1E88E5),
-                  fontSize: 12,
+                '${localizations.id}: ${user.id}',
+                style: TextStyle(
+                  color: const Color(0xFF1E88E5),
+                  fontSize: isTablet ? 13 : 12,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -479,29 +697,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
               enabled: connectivityState is ConnectivityConnected,
               itemBuilder:
                   (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'view',
                       child: ListTile(
-                        leading: Icon(Icons.visibility),
-                        title: Text('View'),
+                        leading: const Icon(Icons.visibility),
+                        title: Text(localizations.view),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: ListTile(
-                        leading: Icon(Icons.edit),
-                        title: Text('Edit'),
+                        leading: const Icon(Icons.edit),
+                        title: Text(localizations.edit),
                         contentPadding: EdgeInsets.zero,
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: ListTile(
-                        leading: Icon(Icons.delete, color: Colors.red),
+                        leading: const Icon(Icons.delete, color: Colors.red),
                         title: Text(
-                          'Delete',
-                          style: TextStyle(color: Colors.red),
+                          localizations.delete,
+                          style: const TextStyle(color: Colors.red),
                         ),
                         contentPadding: EdgeInsets.zero,
                       ),
@@ -533,7 +751,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildErrorState(String message) {
+  Widget _buildErrorState(String message, AppLocalizations localizations) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -542,9 +760,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
-            const Text(
-              'Error loading users',
-              style: TextStyle(
+            Text(
+              localizations.errorLoadingUsers,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: Colors.black87,
@@ -561,7 +779,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               onPressed: () {
                 context.read<UsersBloc>().add(const LoadUsersEvent());
               },
-              child: const Text('Retry'),
+              child: Text(localizations.retry),
             ),
           ],
         ),
@@ -569,7 +787,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(AppLocalizations localizations) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -578,18 +796,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const Icon(Icons.people_outline, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text(
-              'No users found',
-              style: TextStyle(
+            Text(
+              localizations.noUsersFound,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
                 color: Colors.grey,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Tap the + button to add your first user',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
+            Text(
+              localizations.addFirstUser,
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
             const SizedBox(height: 24),
             BlocBuilder<ConnectivityBloc, ConnectivityState>(
@@ -600,7 +818,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ? () => _navigateToUserForm(context)
                           : () => _showOfflineMessage(context),
                   icon: const Icon(Icons.add),
-                  label: const Text('Add User'),
+                  label: Text(localizations.addUser),
                 );
               },
             ),
@@ -623,28 +841,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showDeleteDialog(BuildContext context, ApiUserEntity user) {
+    final localizations = AppLocalizations.getSafeLocalizations(context);
+
     showDialog(
       context: context,
       builder:
           (dialogContext) => AlertDialog(
-            title: const Text('Delete User'),
-            content: Text('Are you sure you want to delete ${user.fullName}?'),
+            title: Text(localizations.deleteUser),
+            content: Text(localizations.deleteUserConfirmation(user.fullName)),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Cancel'),
+                child: Text(localizations.cancel),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.of(dialogContext).pop();
                   context.read<UsersBloc>().add(DeleteUserEvent(user.id));
                 },
-                child: const Text(
-                  'Delete',
-                  style: TextStyle(color: Colors.red),
+                child: Text(
+                  localizations.delete,
+                  style: const TextStyle(color: Colors.red),
                 ),
               ),
             ],
@@ -653,32 +873,41 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _showOfflineMessage(BuildContext context) {
+    final localizations = AppLocalizations.getSafeLocalizations(context);
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('This action is not available offline'),
+      SnackBar(
+        content: Text(localizations.offlineActionNotAvailable),
         backgroundColor: Colors.orange,
       ),
     );
   }
 }
 
-class _StatsCard extends StatelessWidget {
+class _ResponsiveStatsCard extends StatelessWidget {
   final String title;
   final String count;
   final IconData icon;
   final Color color;
+  final bool isLarge;
 
-  const _StatsCard({
+  const _ResponsiveStatsCard({
     required this.title,
     required this.count,
     required this.icon,
     required this.color,
+    required this.isLarge,
   });
 
   @override
   Widget build(BuildContext context) {
+    final padding = isLarge ? 24.0 : 20.0;
+    final iconSize = isLarge ? 24.0 : 20.0;
+    final countFontSize = isLarge ? 28.0 : 24.0;
+    final titleFontSize = isLarge ? 16.0 : 14.0;
+
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -703,21 +932,24 @@ class _StatsCard extends StatelessWidget {
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(icon, color: color, size: 20),
+                child: Icon(icon, color: color, size: iconSize),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isLarge ? 20 : 16),
           Text(
             count,
-            style: const TextStyle(
-              fontSize: 24,
+            style: TextStyle(
+              fontSize: countFontSize,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
           ),
           const SizedBox(height: 4),
-          Text(title, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Text(
+            title,
+            style: TextStyle(fontSize: titleFontSize, color: Colors.grey),
+          ),
         ],
       ),
     );

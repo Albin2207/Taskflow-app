@@ -6,71 +6,70 @@ import '../bloc/auth/auth_state.dart';
 import 'login_screen.dart';
 import 'home_screen.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  late AppLocalizations localizations;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
     final locale = Localizations.localeOf(context);
-    final localizations = AppLocalizations(locale);
+    localizations = AppLocalizations(locale);
+    await localizations.load();
 
-    return FutureBuilder<bool>(
-      future: localizations.load(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState != ConnectionState.done) {
-          // While loading
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+    // Optional: delay to show splash for at least 1.5 seconds
+    await Future.delayed(const Duration(seconds: 2));
+
+    // Check auth state once after delay
+    // ignore: use_build_context_synchronously
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      _navigateTo(const HomeScreen());
+    } else if (authState is AuthUnauthenticated) {
+      _navigateTo(const LoginScreen());
+    } else {
+      // If still loading, listen for changes
+      // ignore: use_build_context_synchronously
+      context.read<AuthBloc>().stream.listen((state) {
+        if (state is AuthAuthenticated) {
+          _navigateTo(const HomeScreen());
+        } else if (state is AuthUnauthenticated) {
+          _navigateTo(const LoginScreen());
         }
+      });
+    }
+  }
 
-        if (!snapshot.hasData || snapshot.data != true) {
-          // Failed to load localization
-          return const Scaffold(
-            body: Center(child: Text('Failed to load localization')),
-          );
-        }
+  void _navigateTo(Widget screen) {
+    if (!mounted) return;
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => screen));
+  }
 
-        //  Now it's safe to use localizations
-        return BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is AuthAuthenticated) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const HomeScreen()),
-              );
-            } else if (state is AuthUnauthenticated) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-              );
-            }
-          },
-          child: Scaffold(
-            backgroundColor: const Color(0xFF1E88E5),
-            body: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.task_alt, size: 80, color: Colors.white),
-                  const SizedBox(height: 24),
-                  Text(
-                    localizations.appName,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    localizations.manageTasksEfficiently,
-                    style: const TextStyle(fontSize: 16, color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF1E88E5),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.task_alt, size: 80, color: Colors.white),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
     );
   }
 }

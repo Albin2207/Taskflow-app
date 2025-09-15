@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/app_localization.dart';
 import '../../domain/entities/api_user_entity.dart';
 import '../bloc/connectivity/connectivity_bloc.dart';
 import '../bloc/userlist/userlist_bloc.dart';
 import '../bloc/userlist/userlist_event.dart';
 import 'users_form_screen.dart';
-
 
 class UserDetailScreen extends StatelessWidget {
   final ApiUserEntity user;
@@ -14,14 +14,21 @@ class UserDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) {
+      return const Scaffold(
+        body: Center(child: Text('Localization not available')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          'User Details',
-          style: TextStyle(
+        title: Text(
+          localizations.userDetails,
+          style: const TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
           ),
@@ -32,26 +39,29 @@ class UserDetailScreen extends StatelessWidget {
               return PopupMenuButton<String>(
                 enabled: connectivityState is ConnectivityConnected,
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'edit',
                     child: ListTile(
-                      leading: Icon(Icons.edit),
-                      title: Text('Edit'),
+                      leading: const Icon(Icons.edit),
+                      title: Text(localizations.edit),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: ListTile(
-                      leading: Icon(Icons.delete, color: Colors.red),
-                      title: Text('Delete', style: TextStyle(color: Colors.red)),
+                      leading: const Icon(Icons.delete, color: Colors.red),
+                      title: Text(
+                        localizations.delete, 
+                        style: const TextStyle(color: Colors.red)
+                      ),
                       contentPadding: EdgeInsets.zero,
                     ),
                   ),
                 ],
                 onSelected: (value) {
                   if (connectivityState is ConnectivityDisconnected) {
-                    _showOfflineMessage(context);
+                    _showOfflineMessage(context, localizations);
                     return;
                   }
 
@@ -60,7 +70,7 @@ class UserDetailScreen extends StatelessWidget {
                       _navigateToEditUser(context);
                       break;
                     case 'delete':
-                      _showDeleteDialog(context);
+                      _showDeleteDialog(context, localizations);
                       break;
                   }
                 },
@@ -184,9 +194,9 @@ class UserDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Details',
-                    style: TextStyle(
+                  Text(
+                    localizations.details,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -195,11 +205,11 @@ class UserDetailScreen extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  _buildDetailRow('First Name', user.firstName),
+                  _buildDetailRow(localizations.firstName, user.firstName),
                   const SizedBox(height: 12),
-                  _buildDetailRow('Last Name', user.lastName),
+                  _buildDetailRow(localizations.lastName, user.lastName),
                   const SizedBox(height: 12),
-                  _buildDetailRow('Email', user.email),
+                  _buildDetailRow(localizations.email, user.email),
                   const SizedBox(height: 12),
                   _buildDetailRow('User ID', user.id.toString()),
                 ],
@@ -222,11 +232,11 @@ class UserDetailScreen extends StatelessWidget {
                       child: ElevatedButton.icon(
                         onPressed: isOnline 
                             ? () => _navigateToEditUser(context)
-                            : () => _showOfflineMessage(context),
+                            : () => _showOfflineMessage(context, localizations),
                         icon: const Icon(Icons.edit),
-                        label: const Text(
-                          'Edit User',
-                          style: TextStyle(
+                        label: Text(
+                          localizations.editUser,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -251,12 +261,12 @@ class UserDetailScreen extends StatelessWidget {
                       height: 56,
                       child: OutlinedButton.icon(
                         onPressed: isOnline 
-                            ? () => _showDeleteDialog(context)
-                            : () => _showOfflineMessage(context),
+                            ? () => _showDeleteDialog(context, localizations)
+                            : () => _showOfflineMessage(context, localizations),
                         icon: const Icon(Icons.delete),
-                        label: const Text(
-                          'Delete User',
-                          style: TextStyle(
+                        label: Text(
+                          localizations.deleteUser,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -282,14 +292,14 @@ class UserDetailScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: Colors.orange.withOpacity(0.3)),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Icons.wifi_off, color: Colors.orange, size: 20),
-                            SizedBox(width: 8),
+                            const Icon(Icons.wifi_off, color: Colors.orange, size: 20),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'You are currently offline. Edit and delete actions are disabled.',
-                                style: TextStyle(
+                                localizations.offlineEditDeleteDisabled,
+                                style: const TextStyle(
                                   color: Colors.orange,
                                   fontSize: 14,
                                 ),
@@ -345,19 +355,19 @@ class UserDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteDialog(BuildContext context) {
+  void _showDeleteDialog(BuildContext context, AppLocalizations localizations) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete User'),
-        content: Text('Are you sure you want to delete ${user.fullName}?'),
+        title: Text(localizations.deleteUser),
+        content: Text(localizations.deleteUserConfirmation(user.fullName)),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: Text(localizations.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -365,9 +375,9 @@ class UserDetailScreen extends StatelessWidget {
               context.read<UsersBloc>().add(DeleteUserEvent(user.id));
               Navigator.of(context).pop(); // Go back to users list
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              localizations.delete,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
@@ -375,10 +385,10 @@ class UserDetailScreen extends StatelessWidget {
     );
   }
 
-  void _showOfflineMessage(BuildContext context) {
+  void _showOfflineMessage(BuildContext context, AppLocalizations localizations) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('This action is not available offline'),
+      SnackBar(
+        content: Text(localizations.offlineActionNotAvailable),
         backgroundColor: Colors.orange,
       ),
     );

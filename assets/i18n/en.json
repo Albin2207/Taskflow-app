@@ -94,5 +94,10 @@
   "language_changed": "Language changed successfully",
 
   "coming_soon": "{feature} coming soon!",
-  "test_notification": "Test Notification"
+  "test_notification": "Test Notification",
+
+  "task_flow": "TaskFlow",
+  "user": "User",
+  "test_notification_tooltip": "Test Notification",
+  "id": "ID"
 }

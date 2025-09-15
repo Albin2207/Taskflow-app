@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../core/app_localization.dart';
 import '../../domain/entities/api_user_entity.dart';
 import '../bloc/connectivity/connectivity_bloc.dart';
 import '../bloc/userlist/userlist_bloc.dart';
@@ -46,13 +47,20 @@ class _UserFormScreenState extends State<UserFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) {
+      return const Scaffold(
+        body: Center(child: Text('Localization not available')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          isEditing ? 'Edit User' : 'Create User',
+          isEditing ? localizations.editUser : localizations.createUser,
           style: const TextStyle(
             color: Colors.black87,
             fontWeight: FontWeight.bold,
@@ -99,18 +107,18 @@ class _UserFormScreenState extends State<UserFormScreen> {
                             color: Colors.orange.withOpacity(0.3),
                           ),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.wifi_off,
                               color: Colors.orange,
                               size: 20,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                'You are currently offline. Please connect to the internet to save changes.',
-                                style: TextStyle(
+                                localizations.currentlyOffline,
+                                style: const TextStyle(
                                   color: Colors.orange,
                                   fontSize: 14,
                                 ),
@@ -142,9 +150,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isEditing
-                                ? 'Edit User Information'
-                                : 'User Information',
+                            localizations.userInformation,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -157,13 +163,13 @@ class _UserFormScreenState extends State<UserFormScreen> {
                           // First Name
                           TextFormField(
                             controller: _firstNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'First Name',
-                              prefixIcon: Icon(Icons.person_outline),
+                            decoration: InputDecoration(
+                              labelText: localizations.firstName,
+                              prefixIcon: const Icon(Icons.person_outline),
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please enter first name';
+                                return localizations.pleaseEnterFirstName;
                               }
                               return null;
                             },
@@ -174,13 +180,13 @@ class _UserFormScreenState extends State<UserFormScreen> {
                           // Last Name
                           TextFormField(
                             controller: _lastNameController,
-                            decoration: const InputDecoration(
-                              labelText: 'Last Name',
-                              prefixIcon: Icon(Icons.person_outline),
+                            decoration: InputDecoration(
+                              labelText: localizations.lastName,
+                              prefixIcon: const Icon(Icons.person_outline),
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please enter last name';
+                                return localizations.pleaseEnterLastName;
                               }
                               return null;
                             },
@@ -191,19 +197,19 @@ class _UserFormScreenState extends State<UserFormScreen> {
                           // Email
                           TextFormField(
                             controller: _emailController,
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
-                              prefixIcon: Icon(Icons.email_outlined),
+                            decoration: InputDecoration(
+                              labelText: localizations.email,
+                              prefixIcon: const Icon(Icons.email_outlined),
                             ),
                             keyboardType: TextInputType.emailAddress,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Please enter email';
+                                return localizations.pleaseEnterEmail;
                               }
                               if (!RegExp(
                                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                               ).hasMatch(value)) {
-                                return 'Please enter a valid email';
+                                return localizations.pleaseEnterValidEmail;
                               }
 
                               return null;
@@ -215,17 +221,16 @@ class _UserFormScreenState extends State<UserFormScreen> {
                           // Avatar URL
                           TextFormField(
                             controller: _avatarController,
-                            decoration: const InputDecoration(
-                              labelText: 'Avatar URL',
-                              prefixIcon: Icon(Icons.image_outlined),
-                              helperText:
-                                  'Optional: Enter image URL for user avatar',
+                            decoration: InputDecoration(
+                              labelText: localizations.avatarUrl,
+                              prefixIcon: const Icon(Icons.image_outlined),
+                              helperText: localizations.avatarUrlOptional,
                             ),
                             validator: (value) {
                               if (value != null && value.isNotEmpty) {
                                 if (!Uri.tryParse(value)!.hasAbsolutePath ==
                                     true) {
-                                  return 'Please enter a valid URL';
+                                  return localizations.pleaseEnterValidUrl;
                                 }
                               }
                               return null;
@@ -256,9 +261,9 @@ class _UserFormScreenState extends State<UserFormScreen> {
                         ),
                         child: Column(
                           children: [
-                            const Text(
-                              'Preview',
-                              style: TextStyle(
+                            Text(
+                              localizations.preview,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black87,
@@ -324,11 +329,11 @@ class _UserFormScreenState extends State<UserFormScreen> {
                                 label: Text(
                                   isLoading
                                       ? (isEditing
-                                          ? 'Updating...'
-                                          : 'Creating...')
+                                          ? localizations.updating
+                                          : localizations.creating)
                                       : (isEditing
-                                          ? 'Update User'
-                                          : 'Create User'),
+                                          ? localizations.updateUser
+                                          : localizations.createUser),
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -359,9 +364,9 @@ class _UserFormScreenState extends State<UserFormScreen> {
                                         ? null
                                         : () => Navigator.of(context).pop(),
                                 icon: const Icon(Icons.cancel),
-                                label: const Text(
-                                  'Cancel',
-                                  style: TextStyle(
+                                label: Text(
+                                  localizations.cancel,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -390,9 +395,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
   }
 
   void _saveUser() {
-    print('=== SAVE USER CALLED ===');
     if (_formKey.currentState?.validate() ?? false) {
-      print('=== FORM VALIDATION PASSED ===');
       final user = ApiUserEntity(
         id: isEditing ? widget.user!.id : 0,
         firstName: _firstNameController.text.trim(),
@@ -404,19 +407,11 @@ class _UserFormScreenState extends State<UserFormScreen> {
                 : _avatarController.text.trim(),
       );
 
-      print(
-        '=== USER DATA: ${user.firstName} ${user.lastName} ${user.email} ===',
-      );
-
       if (isEditing) {
-        print('=== TRIGGERING UPDATE EVENT ===');
         context.read<UsersBloc>().add(UpdateUserEvent(user));
       } else {
-        print('=== TRIGGERING CREATE EVENT ===');
         context.read<UsersBloc>().add(CreateUserEvent(user));
       }
-    } else {
-      print('=== FORM VALIDATION FAILED ===');
     }
   }
 }
