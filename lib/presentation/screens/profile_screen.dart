@@ -3,9 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth/auth_event.dart';
 import '../bloc/auth/auth_state.dart';
-import '../bloc/user/user_bloc.dart';
-import '../bloc/user/user_event.dart';
-import '../bloc/user/user_state.dart';
+import '../bloc/userprofile/user_bloc.dart';
+import '../bloc/userprofile/user_event.dart';
+import '../bloc/userprofile/user_state.dart';
 import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {

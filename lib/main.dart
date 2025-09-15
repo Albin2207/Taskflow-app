@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:taskflow_app/core/theme.dart';
 import 'core/dependency_injection.dart' as di;
+import 'core/theme.dart';
 import 'firebase_options.dart';
 import 'presentation/bloc/auth/auth_bloc.dart';
 import 'presentation/bloc/auth/auth_event.dart';
-import 'presentation/bloc/user/user_bloc.dart';
+import 'presentation/bloc/connectivity/connectivity_bloc.dart';
+import 'presentation/bloc/userlist/userlist_bloc.dart';
+import 'presentation/bloc/userprofile/user_bloc.dart';
 import 'presentation/screens/splash_screen.dart';
 
 void main() async {
@@ -35,6 +37,12 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<UserBloc>(
           create: (context) => di.sl<UserBloc>(),
+        ),
+        BlocProvider<UsersBloc>(
+          create: (context) => di.sl<UsersBloc>(),
+        ),
+        BlocProvider<ConnectivityBloc>(
+          create: (context) => di.sl<ConnectivityBloc>()..add(ConnectivityStarted()),
         ),
       ],
       child: MaterialApp(
