@@ -1,0 +1,98 @@
+{
+  "app_name": "टास्कफ़्लो",
+  "manage_tasks_efficiently": "अपने कार्यों को कुशलता से प्रबंधित करें",
+
+  "home": "घर",
+  "profile": "प्रोफ़ाइल",
+  "users": "उपयोगकर्ता",
+
+  "welcome": "स्वागत",
+  "welcome_back": "वापसी पर स्वागत है",
+  "good_morning": "सुप्रभात",
+
+  "add": "जोड़ें",
+  "create": "बनाएं",
+  "edit": "संपादित करें",
+  "delete": "हटाएं",
+  "save": "सेव करें",
+  "cancel": "रद्द करें",
+  "view": "देखें",
+  "update": "अपडेट करें",
+  "refresh": "ताज़ा करें",
+  "retry": "पुनः प्रयास करें",
+  "try_again": "फिर कोशिश करें",
+
+  "login": "लॉगिन",
+  "logout": "लॉगआउट",
+  "sign_out": "साइन आउट",
+  "continue_with_google": "Google के साथ जारी रखें",
+
+  "first_name": "पहला नाम",
+  "last_name": "अंतिम नाम",
+  "email": "ईमेल",
+  "avatar_url": "अवतार URL",
+
+  "create_user": "उपयोगकर्ता बनाएं",
+  "edit_user": "उपयोगकर्ता संपादित करें",
+  "update_user": "उपयोगकर्ता अपडेट करें",
+  "delete_user": "उपयोगकर्ता हटाएं",
+  "user_details": "उपयोगकर्ता विवरण",
+  "add_user": "उपयोगकर्ता जोड़ें",
+
+  "total_users": "कुल उपयोगकर्ता",
+  "current_page": "वर्तमान पृष्ठ",
+
+  "details": "विवरण",
+  "preview": "पूर्वावलोकन",
+  "user_information": "उपयोगकर्ता जानकारी",
+
+  "edit_profile": "प्रोफ़ाइल संपादित करें",
+  "notifications": "सूचनाएं",
+  "language": "भाषा",
+  "help_support": "सहायता और समर्थन",
+  "about": "के बारे में",
+
+  "no_internet_connection": "कोई इंटरनेट कनेक्शन नहीं",
+  "check_internet_connection": "कृपया अपना इंटरनेट कनेक्शन जांचें और फिर कोशिश करें। कनेक्शन बहाल होने पर ऐप अपने आप रीलोड हो जाएगा।",
+  "offline_action_not_available": "यह क्रिया ऑफलाइन उपलब्ध नहीं है",
+  "currently_offline": "आप वर्तमान में ऑफलाइन हैं। परिवर्तन सेव करने के लिए कृपया इंटरनेट से कनेक्ट करें।",
+  "offline_edit_delete_disabled": "आप वर्तमान में ऑफलाइन हैं। संपादन और हटाने की क्रियाएं अक्षम हैं।",
+  "checking_connection": "कनेक्शन जांचा जा रहा है...",
+
+  "error_loading_users": "उपयोगकर्ता लोड करने में त्रुटि",
+  "no_users_found": "कोई उपयोगकर्ता नहीं मिला",
+  "add_first_user": "अपना पहला उपयोगकर्ता जोड़ने के लिए + बटन दबाएं",
+
+  "delete_user_confirmation": "क्या आप वाकई {userName} को हटाना चाहते हैं?",
+  "sign_out_confirmation": "क्या आप वाकई साइन आउट करना चाहते हैं?",
+
+  "user_created_success": "उपयोगकर्ता सफलतापूर्वक बनाया गया",
+  "user_updated_success": "उपयोगकर्ता सफलतापूर्वक अपडेट किया गया",
+  "user_deleted_success": "उपयोगकर्ता सफलतापूर्वक हटाया गया",
+
+  "please_enter_first_name": "कृपया पहला नाम दर्ज करें",
+  "please_enter_last_name": "कृपया अंतिम नाम दर्ज करें",
+  "please_enter_email": "कृपया ईमेल दर्ज करें",
+  "please_enter_valid_email": "कृपया एक वैध ईमेल दर्ज करें",
+  "please_enter_valid_url": "कृपया एक वैध URL दर्ज करें",
+  "avatar_url_optional": "वैकल्पिक: उपयोगकर्ता अवतार के लिए छवि URL दर्ज करें",
+
+  "creating": "बना रहा है...",
+  "updating": "अपडेट कर रहा है...",
+
+  "welcome_back_message": "अपने कार्यों के साथ जारी रखने के लिए साइन इन करें",
+  "terms_privacy_message": "जारी रखकर, आप हमारी सेवा की शर्तों और गोपनीयता नीति से सहमत होते हैं",
+
+  "update_personal_info": "अपनी व्यक्तिगत जानकारी अपडेट करें",
+  "manage_notification_preferences": "सूचना प्राथमिकताओं का प्रबंधन करें",
+  "get_help_support": "सहायता और समर्थन प्राप्त करें",
+  "learn_more_about_app": "टास्कफ़्लो के बारे में और जानें",
+
+  "select_language": "भाषा चुनें",
+  "english": "English",
+  "hindi": "हिन्दी",
+  "language_changed": "भाषा सफलतापूर्वक बदली गई",
+
+  "coming_soon": "{feature} जल्द आ रहा है!",
+  "test_notification": "टेस्ट सूचना"
+}

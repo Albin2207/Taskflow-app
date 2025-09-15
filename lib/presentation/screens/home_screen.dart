@@ -4,6 +4,7 @@ import '../../domain/entities/api_user_entity.dart';
 import '../bloc/auth/auth_bloc.dart';
 import '../bloc/auth/auth_state.dart';
 import '../bloc/connectivity/connectivity_bloc.dart';
+import '../bloc/notification/notification_bloc.dart';
 import '../bloc/userlist/userlist_bloc.dart';
 import '../bloc/userlist/userlist_event.dart';
 import '../bloc/userlist/userlist_state.dart';
@@ -25,42 +26,93 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body:
-          _selectedIndex == 0 ? const DashboardScreen() : const ProfileScreen(),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 1,
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
+    return MultiBlocListener(
+      listeners: [
+        // Listen to notification navigation
+        BlocListener<NotificationBloc, NotificationState>(
+          listener: (context, state) {
+            if (state is NotificationTapped) {
+              _handleNotificationNavigation(state.route, state.data);
+            }
           },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: const Color(0xFF1E88E5),
-          unselectedItemColor: Colors.grey,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          ],
+        ),
+        // Listen to connectivity changes
+        BlocListener<ConnectivityBloc, ConnectivityState>(
+          listener: (context, connectivityState) {
+            if (connectivityState is ConnectivityConnected) {
+              // Show network restored notification
+              context.read<NotificationBloc>().add(
+                NotificationSendNetworkRestored(),
+              );
+            }
+          },
+        ),
+      ],
+      child: Scaffold(
+        body:
+            _selectedIndex == 0
+                ? const DashboardScreen()
+                : const ProfileScreen(),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: (index) {
+              setState(() {
+                _selectedIndex = index;
+              });
+            },
+            type: BottomNavigationBarType.fixed,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            selectedItemColor: const Color(0xFF1E88E5),
+            unselectedItemColor: Colors.grey,
+            selectedFontSize: 12,
+            unselectedFontSize: 12,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _handleNotificationNavigation(String route, Map<String, dynamic> data) {
+    switch (route) {
+      case '/users':
+        // Navigate to users tab and refresh data
+        setState(() {
+          _selectedIndex = 0;
+        });
+        context.read<UsersBloc>().add(const LoadUsersEvent(isRefresh: true));
+        break;
+      case '/profile':
+        setState(() {
+          _selectedIndex = 1;
+        });
+        break;
+      case '/home':
+      default:
+        setState(() {
+          _selectedIndex = 0;
+        });
+        break;
+    }
   }
 }
 
@@ -80,12 +132,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _scrollController.addListener(_onScroll);
     // Load users when screen initializes
     context.read<UsersBloc>().add(const LoadUsersEvent());
+
+    // Show welcome notification on first load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showWelcomeNotificationOnFirstLoad();
+    });
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _showWelcomeNotificationOnFirstLoad() {
+    // Only show welcome notification if this is the first time loading
+    final currentState = context.read<UsersBloc>().state;
+    if (currentState is UsersInitial) {
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          context.read<NotificationBloc>().add(NotificationSendWelcome());
+        }
+      });
+    }
   }
 
   void _onScroll() {
@@ -154,6 +223,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             },
           ),
+          // Test notification button
+          IconButton(
+            icon: const Icon(Icons.notifications_active),
+            color: const Color(0xFF1E88E5),
+            onPressed: () {
+              context.read<NotificationBloc>().add(NotificationSendTest());
+            },
+            tooltip: 'Test Notification',
+          ),
           Container(
             margin: const EdgeInsets.only(right: 16),
             child: BlocBuilder<AuthBloc, AuthState>(
@@ -173,7 +251,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.bug_report, color: Colors.red),
+            icon: const Icon(Icons.bug_report, color: Colors.red),
             onPressed: () {
               Navigator.push(
                 context,

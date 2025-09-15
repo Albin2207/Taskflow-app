@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
-import '../data/database/local/database_helper.dart' show DatabaseHelper;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../data/database/local/database_helper.dart';
 import '../data/database/local/user_database.dart';
 import '../data/database/services/api_service.dart';
 import '../data/database/services/firebase_auth_service.dart';
+import '../data/database/services/notification_service.dart';
 import '../data/repositories/api_user_repositories.dart';
 import '../data/repositories/auth_repositories.dart';
 import '../data/repositories/user_repositories.dart';
@@ -16,6 +18,7 @@ import '../domain/usecases/sign_out_case.dart';
 import '../domain/usecases/userslist_usecases.dart';
 import '../presentation/bloc/auth/auth_bloc.dart';
 import '../presentation/bloc/connectivity/connectivity_bloc.dart';
+import '../presentation/bloc/notification/notification_bloc.dart';
 import '../presentation/bloc/userlist/userlist_bloc.dart';
 import '../presentation/bloc/userprofile/user_bloc.dart';
 import 'connectivity_service.dart';
@@ -24,6 +27,9 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   // External dependencies
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+
   sl.registerLazySingleton<Dio>(() {
     final dio = Dio();
     dio.options.baseUrl = 'https://reqres.in/api';
@@ -36,6 +42,9 @@ Future<void> init() async {
     return dio;
   });
 
+  // Services - Register these OUTSIDE of other registrations
+  sl.registerLazySingleton<NotificationService>(() => NotificationService());
+  
   sl.registerLazySingleton<DatabaseHelper>(() => DatabaseHelper.instance);
 
   sl.registerLazySingleton<ConnectivityService>(() => ConnectivityService());
@@ -91,6 +100,10 @@ Future<void> init() async {
       deleteUserUseCase: sl(),
     ),
   );
-
+  
+  // Note: LocaleBloc doesn't need to be registered in dependency injection
+  // as it's created directly in main.dart and doesn't have dependencies
+  
+  sl.registerFactory(() => NotificationBloc(notificationService: sl()));
   sl.registerFactory(() => ConnectivityBloc(connectivityService: sl()));
 }

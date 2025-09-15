@@ -1,0 +1,98 @@
+{
+  "app_name": "TaskFlow",
+  "manage_tasks_efficiently": "Manage your tasks efficiently",
+
+  "home": "Home",
+  "profile": "Profile",
+  "users": "Users",
+
+  "welcome": "Welcome",
+  "welcome_back": "Welcome Back",
+  "good_morning": "Good Morning",
+
+  "add": "Add",
+  "create": "Create",
+  "edit": "Edit",
+  "delete": "Delete",
+  "save": "Save",
+  "cancel": "Cancel",
+  "view": "View",
+  "update": "Update",
+  "refresh": "Refresh",
+  "retry": "Retry",
+  "try_again": "Try Again",
+
+  "login": "Login",
+  "logout": "Logout",
+  "sign_out": "Sign Out",
+  "continue_with_google": "Continue with Google",
+
+  "first_name": "First Name",
+  "last_name": "Last Name",
+  "email": "Email",
+  "avatar_url": "Avatar URL",
+
+  "create_user": "Create User",
+  "edit_user": "Edit User",
+  "update_user": "Update User",
+  "delete_user": "Delete User",
+  "user_details": "User Details",
+  "add_user": "Add User",
+
+  "total_users": "Total Users",
+  "current_page": "Current Page",
+
+  "details": "Details",
+  "preview": "Preview",
+  "user_information": "User Information",
+
+  "edit_profile": "Edit Profile",
+  "notifications": "Notifications",
+  "language": "Language",
+  "help_support": "Help & Support",
+  "about": "About",
+
+  "no_internet_connection": "No Internet Connection",
+  "check_internet_connection": "Please check your internet connection and try again. The app will automatically reload when connection is restored.",
+  "offline_action_not_available": "This action is not available offline",
+  "currently_offline": "You are currently offline. Please connect to the internet to save changes.",
+  "offline_edit_delete_disabled": "You are currently offline. Edit and delete actions are disabled.",
+  "checking_connection": "Checking connection...",
+
+  "error_loading_users": "Error loading users",
+  "no_users_found": "No users found",
+  "add_first_user": "Tap the + button to add your first user",
+
+  "delete_user_confirmation": "Are you sure you want to delete {userName}?",
+  "sign_out_confirmation": "Are you sure you want to sign out?",
+
+  "user_created_success": "User created successfully",
+  "user_updated_success": "User updated successfully",
+  "user_deleted_success": "User deleted successfully",
+
+  "please_enter_first_name": "Please enter first name",
+  "please_enter_last_name": "Please enter last name",
+  "please_enter_email": "Please enter email",
+  "please_enter_valid_email": "Please enter a valid email",
+  "please_enter_valid_url": "Please enter a valid URL",
+  "avatar_url_optional": "Optional: Enter image URL for user avatar",
+
+  "creating": "Creating...",
+  "updating": "Updating...",
+
+  "welcome_back_message": "Sign in to continue with your tasks",
+  "terms_privacy_message": "By continuing, you agree to our Terms of Service and Privacy Policy",
+
+  "update_personal_info": "Update your personal information",
+  "manage_notification_preferences": "Manage notification preferences",
+  "get_help_support": "Get help and support",
+  "learn_more_about_app": "Learn more about TaskFlow",
+
+  "select_language": "Select Language",
+  "english": "English",
+  "hindi": "हिन्दी",
+  "language_changed": "Language changed successfully",
+
+  "coming_soon": "{feature} coming soon!",
+  "test_notification": "Test Notification"
+}
