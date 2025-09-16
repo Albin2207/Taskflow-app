@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../presentation/screens/no_network_screen.dart';
+import '../presentation/screens/offlinescreen/no_network_screen.dart';
 
 
 class GlobalNavigationHandler {

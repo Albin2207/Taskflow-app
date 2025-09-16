@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../core/app_localization.dart';
-import '../bloc/auth/auth_bloc.dart';
-import '../bloc/auth/auth_state.dart';
-import 'login_screen.dart';
-import 'home_screen.dart';
+import '../../../core/app_localization.dart';
+import '../../bloc/auth/auth_bloc.dart';
+import '../../bloc/auth/auth_state.dart';
+import '../loginscreen/login_screen.dart';
+import '../mainscreen/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

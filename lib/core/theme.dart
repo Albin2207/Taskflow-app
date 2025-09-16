@@ -15,6 +15,7 @@ class AppTheme {
       seedColor: primaryColor,
       brightness: Brightness.light,
       surface: surfaceColor,
+      // ignore: deprecated_member_use
       background: backgroundColor,
     ),
     appBarTheme: const AppBarTheme(
@@ -48,6 +49,7 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
+      // ignore: deprecated_member_use
       shadowColor: Colors.grey.withOpacity(0.1),
     ),
     inputDecorationTheme: InputDecorationTheme(

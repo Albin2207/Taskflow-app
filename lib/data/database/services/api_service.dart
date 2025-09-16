@@ -81,7 +81,6 @@ class ApiDataSourceImpl implements ApiDataSource {
   @override
   Future<ApiUserModel> updateUser(ApiUserModel user) async {
     try {
-      final response = await dio.put('/users/${user.id}', data: user.toJsonForCreate());
       
       // Return the updated user
       return user;

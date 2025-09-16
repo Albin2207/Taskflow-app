@@ -57,7 +57,7 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           .signInWithCredential(credential);
 
       final User? user = userCredential.user;
-      
+
       if (user != null) {
         return UserModel(
           uid: user.uid,
@@ -66,10 +66,9 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
           photoUrl: user.photoURL,
         );
       }
-      
+
       return null;
     } catch (e) {
-      print('Error: $e');
       throw Exception('Google sign in failed: ${e.toString()}');
     }
   }
@@ -80,7 +79,6 @@ class FirebaseAuthDataSourceImpl implements FirebaseAuthDataSource {
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
-      print('Error signing out: $e');
       throw Exception('Sign out failed: ${e.toString()}');
     }
   }

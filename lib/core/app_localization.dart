@@ -46,8 +46,6 @@ class AppLocalizations {
       _isLoaded = true;
       return true;
     } catch (e) {
-      print('Error loading localization file: $e');
-
       // Try fallback to English if not already English
       if (locale.languageCode != 'en') {
         try {
@@ -60,9 +58,8 @@ class AppLocalizations {
           });
           _isLoaded = true;
           return true;
-        } catch (e) {
-          print('Error loading fallback English localization: $e');
-        }
+        // ignore: empty_catches
+        } catch (e) {}
       }
 
       // Ultimate fallback - initialize with hardcoded English strings
@@ -336,4 +333,4 @@ class _AppLocalizationsDelegate
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
-  }
+}

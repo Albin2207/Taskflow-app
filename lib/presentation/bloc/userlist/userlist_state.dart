@@ -6,6 +6,10 @@ abstract class UsersState extends Equatable {
 
   @override
   List<Object?> get props => [];
+
+  int? get currentPage => null;
+
+  get users => null;
 }
 
 class UsersInitial extends UsersState {}
@@ -13,7 +17,9 @@ class UsersInitial extends UsersState {}
 class UsersLoading extends UsersState {}
 
 class UsersLoaded extends UsersState {
+  @override
   final List<ApiUserEntity> users;
+  @override
   final int currentPage;
   final int totalPages;
   final bool isLoadingMore;

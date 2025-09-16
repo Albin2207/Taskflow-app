@@ -4,11 +4,7 @@ import 'package:flutter/foundation.dart';
 
 // Top-level function to handle background messages
 @pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('Handling a background message: ${message.messageId}');
-  print('Message data: ${message.data}');
-  print('Message notification: ${message.notification?.title}');
-}
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -16,38 +12,35 @@ class NotificationService {
   NotificationService._internal();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
-  
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
+
   // Navigation callback - will be set from the main app
   void Function(String route, Map<String, dynamic> data)? onNotificationTap;
-  
+
   // Token callback - for sending to your backend
   void Function(String token)? onTokenReceived;
-  
+
   bool _initialized = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
-    
+
     try {
-      print('=== INITIALIZING NOTIFICATION SERVICE ===');
-      
       // Request permission for notifications
       await _requestPermission();
-      
+
       // Initialize local notifications
       await _initializeLocalNotifications();
-      
+
       // Configure Firebase messaging
       await _configureFirebaseMessaging();
-      
+
       // Get FCM token
       await _getFCMToken();
-      
+
       _initialized = true;
-      print('=== NOTIFICATION SERVICE INITIALIZED SUCCESSFULLY ===');
     } catch (e) {
-      print('=== NOTIFICATION SERVICE INITIALIZATION ERROR: $e ===');
       rethrow;
     }
   }
@@ -64,20 +57,24 @@ class NotificationService {
         sound: true,
       );
 
-      print('User granted notification permission: ${settings.authorizationStatus}');
-      
+      // ignore: avoid_print
+      print(
+        'User granted notification permission: ${settings.authorizationStatus}',
+      );
+
       if (settings.authorizationStatus == AuthorizationStatus.denied) {
         throw Exception('Notification permissions denied');
       }
     } catch (e) {
-      print('Error requesting notification permission: $e');
       rethrow;
     }
   }
 
   Future<void> _initializeLocalNotifications() async {
     try {
-      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const androidSettings = AndroidInitializationSettings(
+        '@mipmap/ic_launcher',
+      );
 
       const iosSettings = DarwinInitializationSettings(
         requestAlertPermission: true,
@@ -110,13 +107,12 @@ class NotificationService {
         );
 
         await _localNotifications
-            .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >()
             ?.createNotificationChannel(channel);
       }
-          
-      print('Local notifications initialized successfully');
     } catch (e) {
-      print('Error initializing local notifications: $e');
       rethrow;
     }
   }
@@ -137,10 +133,7 @@ class NotificationService {
       if (initialMessage != null) {
         _handleMessageOpenedApp(initialMessage);
       }
-      
-      print('Firebase messaging configured successfully');
     } catch (e) {
-      print('Error configuring Firebase messaging: $e');
       rethrow;
     }
   }
@@ -149,30 +142,34 @@ class NotificationService {
     try {
       final token = await _firebaseMessaging.getToken();
       if (token != null) {
+        // ignore: avoid_print
         print('FCM Token: $token');
         onTokenReceived?.call(token);
-        
+
         // Listen for token refresh
         _firebaseMessaging.onTokenRefresh.listen((newToken) {
+          // ignore: avoid_print
           print('FCM Token refreshed: $newToken');
           onTokenReceived?.call(newToken);
         });
       }
-      
+
       return token;
     } catch (e) {
-      print('Error getting FCM token: $e');
       return null;
     }
   }
 
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    print('Got a message whilst in the foreground!');
-    print('Message data: ${message.data}');
+    if (kDebugMode) {
+      print('Message data: ${message.data}');
+    }
 
     if (message.notification != null) {
-      print('Message also contained a notification: ${message.notification}');
-      
+      if (kDebugMode) {
+        print('Message also contained a notification: ${message.notification}');
+      }
+
       // Show local notification when app is in foreground
       await _showLocalNotification(
         title: message.notification?.title ?? 'TaskFlow',
@@ -183,30 +180,35 @@ class NotificationService {
   }
 
   void _handleMessageOpenedApp(RemoteMessage message) {
-    print('A new onMessageOpenedApp event was published!');
-    print('Message data: ${message.data}');
-    
+    if (kDebugMode) {
+      print('Message data: ${message.data}');
+    }
+
     // Handle navigation based on message data
     _handleNotificationNavigation(message.data);
   }
 
   void _onNotificationTap(NotificationResponse response) {
-    print('Notification tapped: ${response.payload}');
-    
+    if (kDebugMode) {
+      print('Notification tapped: ${response.payload}');
+    }
+
     if (response.payload != null) {
       try {
         // Simple parsing - you can make this more sophisticated
         final data = <String, dynamic>{'payload': response.payload};
         _handleNotificationNavigation(data);
       } catch (e) {
-        print('Error parsing notification payload: $e');
+        if (kDebugMode) {
+          print('Error parsing notification payload: $e');
+        }
       }
     }
   }
 
   void _handleNotificationNavigation(Map<String, dynamic> data) {
     String route = '/home'; // Default route
-    
+
     // Determine route based on notification type
     if (data.containsKey('type')) {
       switch (data['type']) {
@@ -226,7 +228,7 @@ class NotificationService {
           route = '/home';
       }
     }
-    
+
     // Call navigation callback
     onNotificationTap?.call(route, data);
   }
@@ -264,13 +266,10 @@ class NotificationService {
         title,
         body,
         platformDetails,
-        payload: data != null ? data.toString() : null,
+        payload: data?.toString(),
       );
-      
-      print('Local notification shown: $title - $body');
-    } catch (e) {
-      print('Error showing local notification: $e');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   // Public methods for sending notifications
@@ -342,21 +341,18 @@ class NotificationService {
   Future<void> cancelAllNotifications() async {
     try {
       await _localNotifications.cancelAll();
-      print('All notifications cancelled');
-    } catch (e) {
-      print('Error cancelling notifications: $e');
-    }
+      // ignore: empty_catches
+    } catch (e) {}
   }
 
   Future<String?> getFCMToken() async {
     try {
       return await _firebaseMessaging.getToken();
     } catch (e) {
-      print('Error getting FCM token: $e');
       return null;
     }
   }
-  
+
   void dispose() {
     _initialized = false;
     onNotificationTap = null;

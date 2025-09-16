@@ -116,8 +116,8 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final NotificationService _notificationService;
 
   NotificationBloc({required NotificationService notificationService})
-      : _notificationService = notificationService,
-        super(NotificationInitial()) {
+    : _notificationService = notificationService,
+      super(NotificationInitial()) {
     on<NotificationInitialize>(_onInitialize);
     on<NotificationSendUserCreated>(_onSendUserCreated);
     on<NotificationSendUserUpdated>(_onSendUserUpdated);
@@ -139,13 +139,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== INITIALIZING NOTIFICATION BLOC ===');
       await _notificationService.initialize();
       final token = await _notificationService.getFCMToken();
-      print('=== NOTIFICATION BLOC INITIALIZED SUCCESSFULLY ===');
+
       emit(NotificationInitialized(fcmToken: token));
     } catch (e) {
-      print('=== NOTIFICATION BLOC INITIALIZATION ERROR: $e ===');
       emit(NotificationError('Failed to initialize notifications: $e'));
     }
   }
@@ -155,11 +153,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING USER CREATED NOTIFICATION: ${event.userName} ===');
       await _notificationService.showUserCreatedNotification(event.userName);
       emit(const NotificationSent('User created notification sent'));
     } catch (e) {
-      print('=== ERROR SENDING USER CREATED NOTIFICATION: $e ===');
       emit(NotificationError('Failed to send user created notification: $e'));
     }
   }
@@ -169,11 +165,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING USER UPDATED NOTIFICATION: ${event.userName} ===');
       await _notificationService.showUserUpdatedNotification(event.userName);
       emit(const NotificationSent('User updated notification sent'));
     } catch (e) {
-      print('=== ERROR SENDING USER UPDATED NOTIFICATION: $e ===');
       emit(NotificationError('Failed to send user updated notification: $e'));
     }
   }
@@ -183,11 +177,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING USER DELETED NOTIFICATION: ${event.userName} ===');
       await _notificationService.showUserDeletedNotification(event.userName);
       emit(const NotificationSent('User deleted notification sent'));
     } catch (e) {
-      print('=== ERROR SENDING USER DELETED NOTIFICATION: $e ===');
       emit(NotificationError('Failed to send user deleted notification: $e'));
     }
   }
@@ -197,11 +189,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING WELCOME NOTIFICATION ===');
       await _notificationService.showWelcomeNotification();
       emit(const NotificationSent('Welcome notification sent'));
     } catch (e) {
-      print('=== ERROR SENDING WELCOME NOTIFICATION: $e ===');
       emit(NotificationError('Failed to send welcome notification: $e'));
     }
   }
@@ -211,11 +201,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING SYNC NOTIFICATION: ${event.userCount} users ===');
       await _notificationService.showSyncNotification(event.userCount);
       emit(const NotificationSent('Sync notification sent'));
     } catch (e) {
-      print('=== ERROR SENDING SYNC NOTIFICATION: $e ===');
       emit(NotificationError('Failed to send sync notification: $e'));
     }
   }
@@ -225,12 +213,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING NETWORK RESTORED NOTIFICATION ===');
       await _notificationService.showNetworkRestoredNotification();
       emit(const NotificationSent('Network restored notification sent'));
     } catch (e) {
-      print('=== ERROR SENDING NETWORK RESTORED NOTIFICATION: $e ===');
-      emit(NotificationError('Failed to send network restored notification: $e'));
+      emit(
+        NotificationError('Failed to send network restored notification: $e'),
+      );
     }
   }
 
@@ -239,11 +227,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     try {
-      print('=== SENDING TEST NOTIFICATION ===');
       await _notificationService.showTestNotification();
       emit(const NotificationSent('Test notification sent successfully! 🎉'));
     } catch (e) {
-      print('=== ERROR SENDING TEST NOTIFICATION: $e ===');
       emit(NotificationError('Failed to send test notification: $e'));
     }
   }
@@ -252,7 +238,6 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NotificationHandleTap event,
     Emitter<NotificationState> emit,
   ) {
-    print('=== HANDLING NOTIFICATION TAP: ${event.route} ===');
     emit(NotificationTapped(event.route, event.data));
   }
 }

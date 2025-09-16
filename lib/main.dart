@@ -18,8 +18,8 @@ import 'presentation/bloc/notification/notification_bloc.dart';
 import 'presentation/bloc/userlist/userlist_bloc.dart';
 import 'presentation/bloc/userlist/userlist_event.dart';
 import 'presentation/bloc/userprofile/user_bloc.dart';
-import 'presentation/screens/splash_screen.dart';
-import 'presentation/screens/home_screen.dart';
+import 'presentation/screens/splashscreen/splash_screen.dart';
+import 'presentation/screens/mainscreen/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
