@@ -1,16 +1,90 @@
-# taskflow_app
+TaskFlow
 
-A new Flutter project.
+TaskFlow is a Flutter application designed to demonstrate a complete solution integrating Google Authentication, Push Notifications, Local Notifications, Localization, API Integration with Offline Support, and more.
 
-## Getting Started
+✅ Features Implemented
+Authentication
 
-This project is a starting point for a Flutter application.
+Google Authentication using Firebase Authentication
 
-A few resources to get you started if this is your first Flutter project:
+Notifications
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Push Notifications using Firebase Cloud Messaging (FCM)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Local Notifications using flutter_local_notifications
+
+Localization
+
+Supports multiple languages using localized JSON files (en.json, hi.json)
+
+Language can be dynamically switched
+
+API Integration
+
+Integrated with REST API using Dio
+
+Error handling with Dartz for functional programming patterns
+
+State management using flutter_bloc
+
+Offline Support
+
+Local caching of data using SQLite (sqflite package)
+
+Connectivity status handled with connectivity_plus
+
+Dependency Injection
+
+Implemented using get_it and injectable
+
+⚙️ Technical Stack
+Feature	Package
+State Management	flutter_bloc
+Dependency Injection	get_it, injectable
+HTTP Client	dio
+Local Storage	sqflite, path
+Firebase Authentication	firebase_auth
+Firebase Messaging	firebase_messaging
+Local Notifications	flutter_local_notifications
+Connectivity Detection	connectivity_plus
+Image Caching	cached_network_image
+Localization	flutter_localizations
+Shared Preferences	shared_preferences
+🧱 Project Structure
+
+Core
+Localization, constants, utility functions.
+
+Domain
+Entities and models representing API data.
+
+Data Layer
+API services, database services.
+
+Bloc Layer
+All business logic components (AuthBloc, UsersBloc, etc.).
+
+UI Layer
+Clean, responsive layouts for mobile, tablet, and desktop views.
+
+✅ Setup Instructions
+
+Clone the repository
+
+git clone <repo-url>
+
+
+Install dependencies
+
+flutter pub get
+
+
+Configure Firebase
+
+Add google-services.json for Android and GoogleService-Info.plist for iOS.
+
+Enable Google Sign-In and FCM in Firebase Console.
+
+Run the app
+
+flutter run
